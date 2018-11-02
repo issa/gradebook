@@ -1,0 +1,21 @@
+{
+    "name": "studip/studip-plugin-gradebook",
+    "description": "A Stud.IP gradebook plugin.",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "gradebook@luniki",
+            "email": "gradebook@luniki.de"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^5.5 || ^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Studip\\Grading\\": "lib/"
+        },
+    }
+}

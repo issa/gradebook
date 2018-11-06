@@ -8,18 +8,28 @@ class Instance extends \SimpleORMap
     {
         $config['db_table'] = 'grading_instances';
 
-        $config['belongs_to']['test'] = [
-            'class_name' => $config['relationTypes']['Test'],
-            'foreign_key' => 'test_id'
+        $config['belongs_to']['user'] = [
+            'class_name' => 'User',
+            'foreign_key' => 'user_id',
         ];
-
-        $config['has_many']['attempts'] = [
-            'class_name' => $config['relationTypes']['Attempt'],
-            'assoc_foreign_key' => 'assignment_id',
-            'on_delete' => 'delete',
-            'on_store' => 'store'
+        $config['belongs_to']['definition'] = [
+            'class_name' => Definition::class,
+            'foreign_key' => 'definition_id',
         ];
 
         parent::configure($config);
+    }
+
+    public function findByCourse(\Course $course)
+    {
+        $definitionIds = Definition::findAndMapBySQL(
+            function ($def) {
+                return $def->id;
+            },
+            'course_id = ?',
+            [$course->id]
+        );
+
+        return \SimpleORMapCollection::createFromArray(self::findBySql('definition_id IN (?)', [$definitionIds]));
     }
 }

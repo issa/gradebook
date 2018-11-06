@@ -32,19 +32,52 @@ class Gradebook_LecturersController extends AbstractGradebookController
         }
 
         $course = \Context::get();
-        $this->categories = Definition::getCategoriesByCourse($course);
         $this->students = $course->getMembersWithStatus('autor', true)->pluck('user');
-        $gradingDefinitions = Definition::findByCourse($course);
-        $gradingInstances = Instance::findByCourse($course);
+        $this->gradingDefinitions = Definition::findByCourse($course);
+        $this->groupedDefinitions = $this->groupedDefinitions();
+        $this->groupedInstances = $this->groupedInstances($course);
+        $this->sumOfWeights = $this->getSumOfWeights();
+        $this->totalSums = $this->sumOfWeights ? $this->getTotalSums() : 0;
+    }
 
-        $this->groupedDefinitions = [];
-        foreach ($gradingDefinitions as $def) {
-            if (!isset($this->groupedDefinitions[$def->category])) {
-                $this->groupedDefinitions[$def->category] = [];
-            }
-            $this->groupedDefinitions[$def->category][] = $def;
+    public function formatAsPercent($value)
+    {
+        return (round($value * 1000) / 10).'%';
+    }
+
+    public function getInstanceForUser(Definition $definition, \User $user)
+    {
+        if (!isset($this->groupedInstances[$user->id])) {
+            return null;
+        }
+        if (!isset($this->groupedInstances[$user->id][$definition->id])) {
+            return null;
         }
 
+        return $this->groupedInstances[$user->id][$definition->id];
+    }
+
+    public function getNormalizedWeight(Definition $definition)
+    {
+        return $this->sumOfWeights ? $definition->weight / $this->sumOfWeights : 0;
+    }
+
+    private function groupedDefinitions()
+    {
+        $groupedDefinitions = [];
+        foreach ($this->gradingDefinitions as $def) {
+            if (!isset($groupedDefinitions[$def->category])) {
+                $groupedDefinitions[$def->category] = [];
+            }
+            $groupedDefinitions[$def->category][] = $def;
+        }
+
+        return $groupedDefinitions;
+    }
+
+    private function groupedInstances($course)
+    {
+        $gradingInstances = Instance::findByCourse($course);
         $groupedInstances = [];
         foreach ($gradingInstances as $instance) {
             if (!isset($groupedInstances[$instance->user_id])) {
@@ -53,40 +86,34 @@ class Gradebook_LecturersController extends AbstractGradebookController
             $groupedInstances[$instance->user_id][$instance->definition_id] = $instance;
         }
 
-        $this->findInstance = function (Definition $definition, \User $user) use ($groupedInstances) {
-            if (!isset($groupedInstances[$user->id])) {
-                return null;
-            }
-            if (!isset($groupedInstances[$user->id][$definition->id])) {
-                return null;
-            }
+        return $groupedInstances;
+    }
 
-            return $groupedInstances[$user->id][$definition->id];
-        };
-
+    private function getSumOfWeights()
+    {
         $sumOfWeights = 0;
-        foreach ($gradingDefinitions as $def) {
+        foreach ($this->gradingDefinitions as $def) {
             $sumOfWeights += $def->weight;
         }
 
-        $this->findWeight = function (Definition $definition) use ($sumOfWeights) {
-            return $definition->weight / $sumOfWeights;
-        };
+        return $sumOfWeights;
+    }
 
-        $this->totalSums = [];
+    private function getTotalSums()
+    {
+        $totalSums = [];
         foreach ($this->students as $student) {
-            if (!isset($this->totalSums[$student->id])) {
-                $this->totalSums[$student->id] = 0;
+            if (!isset($totalSums[$student->id])) {
+                $totalSums[$student->id] = 0;
             }
 
-            foreach ($groupedInstances[$student->id] as $definitionId => $instance) {
-                $definition = $gradingDefinitions->findOneBy('id', $definitionId);
-                $this->totalSums[$student->id] += $instance->rawgrade * ($definition->weight / $sumOfWeights);
+            foreach ($this->groupedInstances[$student->id] as $definitionId => $instance) {
+                if ($definition = $this->gradingDefinitions->findOneBy('id', $definitionId)) {
+                    $totalSums[$student->id] += $instance->rawgrade * ($definition->weight / $this->sumOfWeights);
+                }
             }
         }
 
-        $this->formatAsPercent = function ($value) {
-            return (round($value * 1000) / 10).'%';
-        };
+        return $totalSums;
     }
 }

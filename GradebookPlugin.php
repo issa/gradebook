@@ -99,7 +99,7 @@ class GradebookPlugin extends StudIPPlugin implements
      */
     public function getTabNavigation($cid)
     {
-        $overviewURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook', true);
+        $overviewURL = \PluginEngine::getURL($this, compact('cid'), '', true);
         $tab = new Navigation('Gradebook', $overviewURL);
 
         $tab->addSubNavigation('index', new Navigation(_('Übersicht'), $overviewURL));

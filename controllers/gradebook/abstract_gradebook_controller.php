@@ -19,6 +19,14 @@ abstract class AbstractGradebookController extends StudipController
         $this->setDefaultPageTitle();
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.Superglobals)
+     */
+    protected function getCurrentUser()
+    {
+        return \User::findCurrent();
+    }
+
     protected function viewerIsStudent()
     {
         return $this->viewerHasPerm('autor') && !$this->viewerHasPerm('dozent');

@@ -35,6 +35,8 @@ class Gradebook_LecturersController extends AbstractGradebookController
         $this->students = $course->getMembersWithStatus('autor', true)->pluck('user');
         $this->gradingDefinitions = Definition::findByCourse($course);
         $this->groupedDefinitions = $this->groupedDefinitions();
+        $this->categories = array_keys($this->groupedDefinitions);
+        sort($this->categories);
         $this->groupedInstances = $this->groupedInstances($course);
         $this->sumOfWeights = $this->getSumOfWeights();
         $this->totalSums = $this->sumOfWeights ? $this->getTotalSums() : 0;
@@ -42,7 +44,7 @@ class Gradebook_LecturersController extends AbstractGradebookController
 
     public function formatAsPercent($value)
     {
-        return (round($value * 1000) / 10).'%';
+        return (double) (round($value * 1000) / 10).'%';
     }
 
     public function getInstanceForUser(Definition $definition, \User $user)

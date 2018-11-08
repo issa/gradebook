@@ -1,8 +1,3 @@
-<?
-$categories = array_keys($groupedDefinitions);
-sort($categories);
-?>
-
 <table class="default sortable-table gradebook-lecturer-overview" data-sortlist="[[0, 0]]">
 
     <thead>
@@ -21,7 +16,7 @@ sort($categories);
                 <? foreach ($groupedDefinitions[$category] as $definition) { ?>
                     <th data-sort="text" class="gradebook-lecturer-overview-definition">
                         <?= htmlReady($definition->name) ?>
-                        <span class="gradebook-definition-weight">(<?= $controller->formatAsPercent($controller->getNormalizedWeight($definition)) ?>)</span>
+                        <span class="gradebook-definition-weight">(<?= $controller->formatAsPercent($controller->getNormalizedWeight($definition)) ?>%)</span>
                     </th>
                 <? } ?>
             <? } ?>
@@ -40,7 +35,7 @@ sort($categories);
                 </td>
                 <td data-sort-value="0">
                     <? if (isset($totalSums[$student->id])) { ?>
-                        <?= $controller->formatAsPercent($totalSums[$student->id]) ?>
+                        <?= $controller->formatAsPercent($totalSums[$student->id]) ?>%
                     <? } else { ?>
                         ??%
                     <? } ?>
@@ -52,7 +47,7 @@ sort($categories);
                         <? $instance = $controller->getInstanceForUser($definition, $student) ?>
                         <td>
                             <? if ($instance) { ?>
-                                <?= $controller->formatAsPercent($instance->rawgrade) ?>
+                                <?= $controller->formatAsPercent($instance->rawgrade) ?>%
                             <? } else { ?>
                                 0%
                             <? } ?>

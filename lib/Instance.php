@@ -32,4 +32,19 @@ class Instance extends \SimpleORMap
 
         return \SimpleORMapCollection::createFromArray(self::findBySql('definition_id IN (?)', [$definitionIds]));
     }
+
+    public function findByCourseAndUser(\Course $course, \User $user)
+    {
+        $definitionIds = Definition::findAndMapBySQL(
+            function ($def) {
+                return $def->id;
+            },
+            'course_id = ?',
+            [$course->id]
+        );
+
+        return \SimpleORMapCollection::createFromArray(
+            self::findBySql('definition_id IN (?) AND user_id = ?', [$definitionIds, $user->id])
+        );
+    }
 }

@@ -60,12 +60,3 @@
     </tbody>
 
 </table>
-
-<style>
-.gradebook-lecturer-overview-definition {
-    white-space: nowrap;
-}
-.gradebook-student-name {
-    white-space: nowrap;
-}
-</style>

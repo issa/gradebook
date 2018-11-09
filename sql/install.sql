@@ -6,7 +6,7 @@ CREATE TABLE `grading_definitions` (
   `tool` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
   `category` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL,
   `position` int(11) NOT NULL DEFAULT '0',
-  `weight` float NOT NULL,
+  `weight` float UNSIGNED NOT NULL,
   `mkdate` int(11) NOT NULL,
   `chdate` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

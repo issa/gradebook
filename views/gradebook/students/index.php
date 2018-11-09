@@ -1,17 +1,24 @@
-<article>
+<article class="gradebook-student">
     <header>
         <h1><?= _("Gesamt") ?></h1>
-        TODO<?= $this->render_partial("_progress", ['value' => 60])?>
+        <?= $this->render_partial("_progress", ['value' => $controller->formatAsPercent($total)])?>
     </header>
 
     <? foreach ($categories as $category) { ?>
-        <section>
+        <section class="gradebook-student-category">
             <header>
-                <h1><?= htmlReady($category) ?></h1>
-                TODO<?= $this->render_partial("_progress", ['value' => 60])?>
+                <h2><?= htmlReady($category) ?></h2>
+                <?= $this->render_partial("_progress", ['value' => $controller->formatAsPercent($subtotals[$category])])?>
             </header>
 
             <table class="default">
+                <colgroup>
+                    <col width="200px" />
+                    <col width="150px" />
+                    <col width="100px" />
+                    <col />
+                </colgroup>
+
                 <thead>
                     <tr>
                         <th>&nbsp;</th>
@@ -29,7 +36,7 @@
                     ?>
                         <tr>
                             <td>
-                                <?= htmlReady($definition->name) ?>
+                                <span class="gradebook-definition-name"><?= htmlReady($definition->name) ?></span>
                                 <?= $this->render_partial("_progress", ['value' => (int) $grade])?>
                             </td>
                             <td>
@@ -49,39 +56,3 @@
         </section>
     <? } ?>
 </article>
-<style>
-progress {
-    background-color: var(--light-gray-color-20);
-    border: none;
-    color: var(--base-color);
-    height: 20px;
-}
-
-progress::-moz-progress-bar {
-    background-color: var(--base-color);
-}
-progress::-webkit-progress-value {
-    background-color: var(--base-color);
-}
-.progress-wrapper {
-    /* position: relative; */
-    display: block;
-}
-.progress-wrapper span {
-    font-size: 16px;
-    line-height: 20px;
-    width: 3em;
-    text-align: right;
-    display: inline-block;
-    /*
-       position: absolute;
-       left: 0.2em;
-       top: 0;
-       color: white;
-     */
-}
-
-/* .progress-wrapper progress[value="0"] + span {
-   color: var(--base-color);
-   } */
-</style>

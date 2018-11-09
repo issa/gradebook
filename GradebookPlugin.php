@@ -100,18 +100,19 @@ class GradebookPlugin extends StudIPPlugin implements
     public function getTabNavigation($cid)
     {
         $overviewURL = \PluginEngine::getURL($this, compact('cid'), '', true);
-        $tab = new Navigation('Gradebook', $overviewURL);
+        $gradebook = new Navigation('Gradebook', $overviewURL);
 
-        $tab->addSubNavigation('index', new Navigation(_('Übersicht'), $overviewURL));
+        $gradebook->addSubNavigation('index', new Navigation(_('Übersicht'), $overviewURL));
 
         if ($GLOBALS['perm']->have_studip_perm('dozent', $cid)) {
             $exportURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/export', true);
-            $tab->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
+            $gradebook->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
+        } elseif ($GLOBALS['perm']->have_studip_perm('student', $cid)) {
+            $exportURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/students/export', true);
+            $gradebook->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
         }
 
-        return [
-            'gradebook' => $tab
-        ];
+        return compact('gradebook');
     }
 
     /**

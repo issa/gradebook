@@ -1,0 +1,52 @@
+.progress {
+  display: flex;
+  height: 20px;
+  overflow: hidden;
+  font-size: 15px;
+  background-color: var(--light-gray-color-20);
+  margin: 0.5em 0;
+}
+
+.progress-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: white;
+  text-align: center;
+  white-space: nowrap;
+  background-color: var(--base-color);
+}
+
+.gradebook-lecturer-overview-definition {
+    white-space: nowrap;
+}
+.gradebook-student-name {
+    white-space: nowrap;
+}
+.gradebook-definition-name {
+    font-weight: bold;
+}
+
+article.gradebook-student h1,
+article.gradebook-student h2
+{
+    border-bottom: none;
+}
+article.gradebook-student > header {
+    margin-bottom: 2.5em;
+}
+
+section.gradebook-student-category {
+    margin-bottom: 3em;
+}
+
+section.gradebook-student-category > header {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 0.5em;
+}
+
+section.gradebook-student-category header .progress {
+    flex: 1;
+    margin-left: 1em;
+}

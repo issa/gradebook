@@ -1,4 +1,3 @@
-<span class="progress-wrapper">
-    <progress value="<?= $value ?>" max="100"></progress>
-    <span><?= (int) $value ?>%</span>
-</span>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" style="width: <?= (int) $value ?>%;" aria-valuenow="<?= (int) $value?>" aria-valuemin="0" aria-valuemax="100"><?= (int) $value ?>%</div>
+</div>

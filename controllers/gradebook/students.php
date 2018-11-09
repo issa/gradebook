@@ -41,14 +41,74 @@ class Gradebook_StudentsController extends AbstractGradebookController
         sort($this->categories);
 
         $this->groupedInstances = $this->groupedInstances($course, $user);
-
-
         $this->sumOfWeights = $this->getSumOfWeights();
+        $this->subtotals = $this->getSubtotalGrades();
+        $this->total = $this->getTotalGrade();
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     */
+    public function export_action()
+    {
+        $this->response->add_header(
+            'Cache-Control',
+            $_SERVER['HTTPS'] === 'on' ? 'private' : 'no-cache, no-store, must-revalidate'
+        );
+
+        $filename = preg_replace(
+            '/[^a-zA-Z0-9-_.]+/', '-',
+            sprintf(
+                'gradebook-%s.json',
+                \Context::getHeaderLine()
+            )
+        );
+
+        $course = \Context::get();
+        $user = $this->getCurrentUser();
+        $this->gradingDefinitions = Definition::findByCourse($course);
+        $this->groupedDefinitions = $this->groupedDefinitions();
+        $this->categories = array_keys($this->groupedDefinitions);
+        sort($this->categories);
+        $this->groupedInstances = $this->groupedInstances($course, $user);
+
+        $lines = [];
+        foreach ($this->categories as $category) {
+            foreach ($this->groupedDefinitions[$category] as $definition) {
+                $instance = isset($this->groupedInstances[$definition->id]) ? $this->groupedInstances[$definition->id] : null;
+                $lines[] = [
+                    $category,
+                    $definition->name,
+                    $definition->tool,
+                    $instance ? $instance->rawgrade : 0,
+                    $instance ? $instance->feedback : null
+                ];
+            }
+        }
+
+        $headerLine = [
+            _('Kategorie'),
+            _('Leistung'),
+            _('Werkzeug'),
+            _('Fortschritt'),
+            _('Feedback')
+        ];
+
+        $data = array_merge([$headerLine], $lines);
+        $exportString = array_to_csv($data);
+
+        $this->response->add_header('Content-Disposition', 'attachment;filename="'.$filename.'"');
+        $this->response->add_header('Content-Description', 'File Transfer');
+        $this->response->add_header('Content-Transfer-Encoding', 'binary');
+        $this->response->add_header('Content-Type', 'text/csv;charset=utf-8');
+        $this->response->add_header('Content-Length', strlen($exportString));
+
+        $this->render_text($exportString);
     }
 
     public function formatAsPercent($value)
     {
-        return (double) (round($value * 1000) / 10);
+        return (float) (round($value * 1000) / 10);
     }
 
     public function getNormalizedWeight(Definition $definition)
@@ -90,4 +150,40 @@ class Gradebook_StudentsController extends AbstractGradebookController
         return $groupedInstances;
     }
 
+    private function getSubtotalGrades()
+    {
+        $subtotals = [];
+
+        foreach ($this->groupedDefinitions as $category => $definitions) {
+            $sumOfWeightedGrades = 0;
+            $sumOfWeights = 0;
+
+            foreach ($definitions as $definition) {
+                if (isset($this->groupedInstances[$definition->id])) {
+                    $instance = $this->groupedInstances[$definition->id];
+                    $sumOfWeightedGrades += $instance->rawgrade * $definition->weight;
+                }
+                $sumOfWeights += $definition->weight;
+            }
+            $subtotals[$category] = $sumOfWeights ? $sumOfWeightedGrades / $sumOfWeights : 0;
+        }
+
+        return $subtotals;
+    }
+
+    private function getTotalGrade()
+    {
+        $sumOfWeightedGrades = 0;
+        $sumOfWeights = 0;
+
+        foreach ($this->gradingDefinitions as $definition) {
+            if (isset($this->groupedInstances[$definition->id])) {
+                $instance = $this->groupedInstances[$definition->id];
+                $sumOfWeightedGrades += $instance->rawgrade * $definition->weight;
+            }
+            $sumOfWeights += $definition->weight;
+        }
+
+        return $sumOfWeights ? $sumOfWeightedGrades / $sumOfWeights : 0;
+    }
 }

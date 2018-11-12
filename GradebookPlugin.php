@@ -105,14 +105,27 @@ class GradebookPlugin extends StudIPPlugin implements
         $gradebook->addSubNavigation('index', new Navigation(_('Übersicht'), $overviewURL));
 
         if ($GLOBALS['perm']->have_studip_perm('dozent', $cid)) {
-            $exportURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/export', true);
-            $gradebook->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
+            $this->addTabNavigationOfLecturers($gradebook, $cid);
         } elseif ($GLOBALS['perm']->have_studip_perm('student', $cid)) {
-            $exportURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/students/export', true);
-            $gradebook->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
+            $this->addTabNavigationOfStudents($gradebook, $cid);
         }
 
         return compact('gradebook');
+    }
+
+    private function addTabNavigationOfLecturers(\Navigation $navigation, $cid)
+    {
+            $exportURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/export', true);
+            $navigation->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
+
+            $weightsURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/weights', true);
+            $navigation->addSubNavigation('weights', new Navigation(_('Gewichtungen'), $weightsURL));
+    }
+
+    private function addTabNavigationOfStudents(\Navigation $navigation, $cid)
+    {
+            $exportURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/students/export', true);
+            $navigation->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
     }
 
     /**

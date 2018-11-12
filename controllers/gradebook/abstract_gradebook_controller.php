@@ -15,6 +15,7 @@ abstract class AbstractGradebookController extends StudipController
     public function before_filter(&$action, &$args)
     {
         parent::before_filter($action, $args);
+        $this->flash = Trails_Flash::instance();
         $this->set_layout($GLOBALS['template_factory']->open('layouts/base'));
         $this->setDefaultPageTitle();
         \PageLayout::addStylesheet($this->plugin->getPluginURL() . '/gradebook.css');

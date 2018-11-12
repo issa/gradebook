@@ -100,6 +100,49 @@ class Gradebook_LecturersController extends AbstractGradebookController
         $this->render_text($exportString);
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     */
+    public function weights_action()
+    {
+        if (Navigation::hasItem('/course/gradebook/weights')) {
+            Navigation::activateItem('/course/gradebook/weights');
+        }
+
+        $course = \Context::get();
+        $this->gradingDefinitions = Definition::findByCourse($course);
+        $this->groupedDefinitions = $this->groupedDefinitions();
+        $this->categories = array_keys($this->groupedDefinitions);
+        sort($this->categories);
+        $this->sumOfWeights = $this->getSumOfWeights();
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     */
+    public function store_weights_action()
+    {
+        $weights = \Request::intArray('definitions');
+        $gradingDefinitions = Definition::findByCourse(\Context::get());
+
+        foreach ($gradingDefinitions as $def) {
+            if (!isset($weights[$def->id])) {
+                continue;
+            }
+            $newWeight = (int) $weights[$def->id];
+            if ($newWeight < 0) {
+                continue;
+            }
+            $def->weight = $newWeight;
+        }
+
+        $changedDefinitions = array_filter($gradingDefinitions->store());
+        if (count($changedDefinitions)) {
+            $this->flash['success'] = _('Gewichtungen erfolgreich verändert.');
+        }
+        $this->redirect('gradebook/lecturers');
+    }
+
     public function formatAsPercent($value)
     {
         return (float) (round($value * 1000) / 10).'%';

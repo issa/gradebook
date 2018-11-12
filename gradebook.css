@@ -20,6 +20,19 @@
 .gradebook-lecturer-overview-definition {
     white-space: nowrap;
 }
+form.gradebook-lecturer-weights fieldset {
+    display: flex;
+    flex-wrap: wrap;
+}
+form.gradebook-lecturer-weights label {
+    white-space: nowrap;
+    padding-right: 2px;
+    flex: 1 0 auto;
+
+}
+form.gradebook-lecturer-weights input[type="number"] {
+    max-width: 6em;
+}
 .gradebook-student-name {
     white-space: nowrap;
 }

@@ -9,7 +9,6 @@
                 <label>
                     <?= htmlReady($definition->name) ?>
                     <input type="number" name="definitions[<?= $definition->id ?>]" value="<?= htmlReady($definition->weight) ?>" min="0" max="1000000">
-                    <!-- (<?= $controller->formatAsPercent($controller->getNormalizedWeight($definition)) ?>%) -->
                 </label>
             <? } ?>
 

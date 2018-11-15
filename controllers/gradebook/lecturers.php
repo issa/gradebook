@@ -32,18 +32,18 @@ class Gradebook_LecturersController extends AbstractGradebookController
         }
 
         $course = \Context::get();
+        $this->categories = $this->getCategories($course);
         $this->students = $course->getMembersWithStatus('autor', true)->pluck('user');
-        $this->gradingDefinitions = Definition::findByCourse($course);
-        $this->groupedDefinitions = $this->groupedDefinitions();
-        $this->categories = array_keys($this->groupedDefinitions);
-        sort($this->categories);
+        $gradingDefinitions = Definition::findByCourse($course);
+        $this->groupedDefinitions = $this->getGroupedDefinitions($gradingDefinitions);
         $this->groupedInstances = $this->groupedInstances($course);
-        $this->sumOfWeights = $this->getSumOfWeights();
-        $this->totalSums = $this->sumOfWeights ? $this->getTotalSums() : 0;
+        $this->sumOfWeights = $this->getSumOfWeights($gradingDefinitions);
+        $this->totalSums = $this->sumOfWeights ? $this->getTotalSums($gradingDefinitions) : 0;
     }
 
     /**
      * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function export_action()
     {
@@ -53,7 +53,8 @@ class Gradebook_LecturersController extends AbstractGradebookController
         );
 
         $filename = preg_replace(
-            '/[^a-zA-Z0-9-_.]+/', '-',
+            '/[^a-zA-Z0-9-_.]+/',
+            '-',
             sprintf(
                 'gradebook-%s.json',
                 \Context::getHeaderLine()
@@ -63,10 +64,9 @@ class Gradebook_LecturersController extends AbstractGradebookController
         $course = \Context::get();
         $this->students = $course->getMembersWithStatus('autor', true)->pluck('user');
 
-        $this->gradingDefinitions = Definition::findByCourse($course);
-        $this->groupedDefinitions = $this->groupedDefinitions();
-        $this->categories = array_keys($this->groupedDefinitions);
-        sort($this->categories);
+        $gradingDefinitions = Definition::findByCourse($course);
+        $this->groupedDefinitions = $this->getGroupedDefinitions($gradingDefinitions);
+        $this->categories = $this->getCategories($course);
         $this->groupedInstances = $this->groupedInstances($course);
 
         $headerLine = [];
@@ -110,11 +110,10 @@ class Gradebook_LecturersController extends AbstractGradebookController
         }
 
         $course = \Context::get();
-        $this->gradingDefinitions = Definition::findByCourse($course);
-        $this->groupedDefinitions = $this->groupedDefinitions();
-        $this->categories = array_keys($this->groupedDefinitions);
-        sort($this->categories);
-        $this->sumOfWeights = $this->getSumOfWeights();
+        $gradingDefinitions = Definition::findByCourse($course);
+        $this->groupedDefinitions = $this->getGroupedDefinitions($gradingDefinitions);
+        $this->categories = $this->getCategories($course);
+        $this->sumOfWeights = $this->getSumOfWeights($gradingDefinitions);
     }
 
     /**
@@ -143,9 +142,115 @@ class Gradebook_LecturersController extends AbstractGradebookController
         $this->redirect('gradebook/lecturers');
     }
 
-    public function formatAsPercent($value)
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     */
+    public function custom_definitions_action()
     {
-        return (float) (round($value * 1000) / 10).'%';
+        if (Navigation::hasItem('/course/gradebook/custom_definitions')) {
+            Navigation::activateItem('/course/gradebook/custom_definitions');
+        }
+
+        $course = \Context::get();
+        $gradingDefinitions = Definition::findByCourse($course);
+        $this->groupedDefinitions = $this->getGroupedDefinitions($gradingDefinitions);
+        $this->customDefinitions = isset($this->groupedDefinitions[Definition::CUSTOM_DEFINITIONS_CATEGORY])
+                                 ? $this->groupedDefinitions[Definition::CUSTOM_DEFINITIONS_CATEGORY]
+                                 : [];
+
+        $this->students = $course->getMembersWithStatus('autor', true)->pluck('user');
+        $this->groupedInstances = $this->groupedInstances($course);
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     */
+    public function new_custom_definition_action()
+    {
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     */
+    public function create_custom_definition_action()
+    {
+        $name = trim(\Request::get('name', ''));
+        if (!mb_strlen($name)) {
+            $this->flash['error'] = _('Der Name einer Leistung darf nicht leer sein.');
+        } else {
+            $definition = Definition::create(
+                [
+                    'course_id' => \Context::getId(),
+                    'item' => 'manual',
+                    'name' => $name,
+                    'tool' => 'manual',
+                    'category' => Definition::CUSTOM_DEFINITIONS_CATEGORY,
+                    'position' => 0,
+                    'weight' => 1.0,
+                ]
+            );
+
+            if (!$definition) {
+                $this->flash['error'] = _('Die Leistung konnte nicht definiert werden.');
+            } else {
+                $this->flash['success'] = _('Die Leistung wurde erfolgreich definiert.');
+            }
+        }
+        $this->redirect('gradebook/lecturers/custom_definitions');
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     */
+    public function edit_custom_definition_action($definitionId)
+    {
+        if (!$this->definition = Definition::findOneBySQL('id = ? AND course_id = ?', [$definitionId, \Context::getId()])) {
+            throw new \Trails_Exception(404);
+        }
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     */
+    public function update_custom_definition_action($definitionId)
+    {
+        if (!$definition = Definition::findOneBySQL('id = ? AND course_id = ?', [$definitionId, \Context::getId()])) {
+            throw new \Trails_Exception(404);
+        }
+
+        $name = trim(\Request::get('name', ''));
+        if (!mb_strlen($name)) {
+            $this->flash['error'] = _('Der Name einer Leistung darf nicht leer sein.');
+        } else {
+            $definition->name = $name;
+            if (!$definition->store()) {
+                $this->flash['error'] = _('Die Leistung konnte nicht geändert werden.');
+            }
+        }
+
+        $this->redirect('gradebook/lecturers/custom_definitions');
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     */
+    public function delete_custom_definition_action($definitionId)
+    {
+        if (!$definition = Definition::findOneBySQL(
+                'id = ? AND course_id = ?',
+                [$definitionId, \Context::getId()]
+            )
+        ) {
+            $this->flash['error'] = _('Die Leistung konnte nicht gelöscht werden.');
+        } else {
+            if (Definition::deleteBySQL('id = ?', [$definition->id])) {
+                $this->flash['success'] = _('Die Leistung wurde gelöscht.');
+            } else {
+                $this->flash['error'] = _('Die Leistung konnte nicht gelöscht werden.');
+            }
+        }
+
+        $this->redirect('gradebook/lecturers/custom_definitions');
     }
 
     public function getInstanceForUser(Definition $definition, \User $user)
@@ -158,24 +263,6 @@ class Gradebook_LecturersController extends AbstractGradebookController
         }
 
         return $this->groupedInstances[$user->id][$definition->id];
-    }
-
-    public function getNormalizedWeight(Definition $definition)
-    {
-        return $this->sumOfWeights ? $definition->weight / $this->sumOfWeights : 0;
-    }
-
-    private function groupedDefinitions()
-    {
-        $groupedDefinitions = [];
-        foreach ($this->gradingDefinitions as $def) {
-            if (!isset($groupedDefinitions[$def->category])) {
-                $groupedDefinitions[$def->category] = [];
-            }
-            $groupedDefinitions[$def->category][] = $def;
-        }
-
-        return $groupedDefinitions;
     }
 
     private function groupedInstances($course)
@@ -192,17 +279,7 @@ class Gradebook_LecturersController extends AbstractGradebookController
         return $groupedInstances;
     }
 
-    private function getSumOfWeights()
-    {
-        $sumOfWeights = 0;
-        foreach ($this->gradingDefinitions as $def) {
-            $sumOfWeights += $def->weight;
-        }
-
-        return $sumOfWeights;
-    }
-
-    private function getTotalSums()
+    private function getTotalSums($gradingDefinitions)
     {
         $totalSums = [];
         foreach ($this->students as $student) {
@@ -211,7 +288,7 @@ class Gradebook_LecturersController extends AbstractGradebookController
             }
 
             foreach ($this->groupedInstances[$student->id] as $definitionId => $instance) {
-                if ($definition = $this->gradingDefinitions->findOneBy('id', $definitionId)) {
+                if ($definition = $gradingDefinitions->findOneBy('id', $definitionId)) {
                     $totalSums[$student->id] += $instance->rawgrade * ($definition->weight / $this->sumOfWeights);
                 }
             }

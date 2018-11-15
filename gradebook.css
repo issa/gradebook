@@ -20,6 +20,18 @@
 .gradebook-lecturer-overview-definition {
     white-space: nowrap;
 }
+
+.gradebook-lecturer-overview .gradebook-column-name,
+.gradebook-lecturer-overview .gradebook-column-total,
+.gradebook-lecturer-overview .gradebook-column-category {
+    border-left: 1px solid var(--brand-color-darker);
+    border-right: 1px solid var(--brand-color-darker);
+}
+
+.gradebook-lecturer-overview .gradebook-column-category {
+    text-align: right;
+}
+
 form.gradebook-lecturer-weights fieldset {
     display: flex;
     flex-wrap: wrap;
@@ -62,4 +74,28 @@ section.gradebook-student-category > header {
 section.gradebook-student-category header .progress {
     flex: 1;
     margin-left: 1em;
+}
+
+.gradebook-lecturer-custom-definitions .gradebook-lecturer-blank-slate {
+    text-align: center;
+    border-left: 1px solid var(--dark-gray-color-15);
+    border-bottom: 1px solid var(--brand-color-darker);
+}
+
+.gradebook-lecturer-custom-definitions .gradebook-grade-input,
+.gradebook-lecturer-custom-definitions .gradebook-inline-actions {
+    text-align: right;
+}
+
+
+.gradebook-inline-actions .action-menu-icon {
+    vertical-align: text-bottom;
+}
+
+th.gradebook-inline-actions .action-menu-item {
+    font-weight: 400;
+}
+
+.gradebook-lecturer-custom-definitions input[type="number"] {
+    max-width: 3em;
 }

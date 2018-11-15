@@ -4,6 +4,8 @@ namespace Studip\Grading;
 
 class Definition extends \SimpleORMap
 {
+    const CUSTOM_DEFINITIONS_CATEGORY = 'Manuell eingetragen';
+
     protected static function configure($config = [])
     {
         $config['db_table'] = 'grading_definitions';
@@ -33,11 +35,19 @@ class Definition extends \SimpleORMap
         $stmt = \DBManager::get()->prepare($query);
         $stmt->execute([$course->id]);
 
-        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+        $categories = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+
+        $customIndex = array_search(self::CUSTOM_DEFINITIONS_CATEGORY, $categories);
+        if ($customIndex !== false) {
+            unset($categories[$customIndex]);
+            array_unshift($categories, self::CUSTOM_DEFINITIONS_CATEGORY);
+        }
+
+        return $categories;
     }
 
     public static function findByCourse(\Course $course)
     {
-        return \SimpleORMapCollection::createFromArray(Definition::findBySQL('course_id = ? ORDER BY position', [$course->id]));
+        return \SimpleORMapCollection::createFromArray(Definition::findBySQL('course_id = ? ORDER BY position ASC, name ASC', [$course->id]));
     }
 }

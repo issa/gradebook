@@ -35,13 +35,10 @@ class Gradebook_StudentsController extends AbstractGradebookController
         $user = $this->getCurrentUser();
 
         $this->gradingDefinitions = Definition::findByCourse($course);
-        $this->groupedDefinitions = $this->groupedDefinitions();
-
-        $this->categories = array_keys($this->groupedDefinitions);
-        sort($this->categories);
-
+        $this->groupedDefinitions = $this->getGroupedDefinitions($this->gradingDefinitions);
+        $this->categories = $this->getCategories($course);
         $this->groupedInstances = $this->groupedInstances($course, $user);
-        $this->sumOfWeights = $this->getSumOfWeights();
+        $this->sumOfWeights = $this->getSumOfWeights($this->gradingDefinitions);
         $this->subtotals = $this->getSubtotalGrades();
         $this->total = $this->getTotalGrade();
     }
@@ -67,9 +64,8 @@ class Gradebook_StudentsController extends AbstractGradebookController
         $course = \Context::get();
         $user = $this->getCurrentUser();
         $this->gradingDefinitions = Definition::findByCourse($course);
-        $this->groupedDefinitions = $this->groupedDefinitions();
-        $this->categories = array_keys($this->groupedDefinitions);
-        sort($this->categories);
+        $this->groupedDefinitions = $this->getGroupedDefinitions($this->gradingDefinitions);
+        $this->categories = $this->getCategories($course);
         $this->groupedInstances = $this->groupedInstances($course, $user);
 
         $lines = [];
@@ -81,7 +77,7 @@ class Gradebook_StudentsController extends AbstractGradebookController
                     $definition->name,
                     $definition->tool,
                     $instance ? $instance->rawgrade : 0,
-                    $instance ? $instance->feedback : null
+                    $instance ? $instance->feedback : null,
                 ];
             }
         }
@@ -91,7 +87,7 @@ class Gradebook_StudentsController extends AbstractGradebookController
             _('Leistung'),
             _('Werkzeug'),
             _('Fortschritt'),
-            _('Feedback')
+            _('Feedback'),
         ];
 
         $data = array_merge([$headerLine], $lines);
@@ -104,39 +100,6 @@ class Gradebook_StudentsController extends AbstractGradebookController
         $this->response->add_header('Content-Length', strlen($exportString));
 
         $this->render_text($exportString);
-    }
-
-    public function formatAsPercent($value)
-    {
-        return (float) (round($value * 1000) / 10);
-    }
-
-    public function getNormalizedWeight(Definition $definition)
-    {
-        return $this->sumOfWeights ? $definition->weight / $this->sumOfWeights : 0;
-    }
-
-    private function getSumOfWeights()
-    {
-        $sumOfWeights = 0;
-        foreach ($this->gradingDefinitions as $def) {
-            $sumOfWeights += $def->weight;
-        }
-
-        return $sumOfWeights;
-    }
-
-    private function groupedDefinitions()
-    {
-        $groupedDefinitions = [];
-        foreach ($this->gradingDefinitions as $def) {
-            if (!isset($groupedDefinitions[$def->category])) {
-                $groupedDefinitions[$def->category] = [];
-            }
-            $groupedDefinitions[$def->category][] = $def;
-        }
-
-        return $groupedDefinitions;
     }
 
     private function groupedInstances(\Course $course, \User $user)

@@ -120,6 +120,9 @@ class GradebookPlugin extends StudIPPlugin implements
 
             $weightsURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/weights', true);
             $navigation->addSubNavigation('weights', new Navigation(_('Gewichtungen'), $weightsURL));
+
+            $customURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/custom_definitions', true);
+            $navigation->addSubNavigation('custom_definitions', new Navigation(_('Noten manuell erfassen'), $customURL));
     }
 
     private function addTabNavigationOfStudents(\Navigation $navigation, $cid)

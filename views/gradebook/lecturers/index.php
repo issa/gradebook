@@ -7,9 +7,19 @@ if (isset($flash['success'])) {
 <div style="overflow-x:auto;">
     <table class="default sortable-table gradebook-lecturer-overview" data-sortlist="[[0, 0]]">
 
+        <colgroup>
+            <col class="gradebook-column-name">
+            <col class="gradebook-column-total">
+        </colgroup>
+
+        <? foreach ($categories as $i => $category) { ?>
+            <colgroup class="gradebook-column-category" span="<?= count($groupedDefinitions[$category]) ?>"/>
+        <? } ?>
+
         <thead>
             <tr class="tablesorter-ignoreRow">
-                <th colspan="2">&nbsp;</th>
+                <th>&nbsp;</th>
+                <th>&nbsp;</th>
                 <? foreach ($categories as $category) { ?>
                     <th colspan="<?= count($groupedDefinitions[$category]) ?>"><?= htmlReady($category) ?></th>
                 <? } ?>
@@ -40,24 +50,17 @@ if (isset($flash['success'])) {
                             <?= $studentName ?>
                         </a>
                     </td>
-                    <td data-sort-value="0">
-                        <? if (isset($totalSums[$student->id])) { ?>
-                            <?= $controller->formatAsPercent($totalSums[$student->id]) ?>%
-                        <? } else { ?>
-                            ??%
-                        <? } ?>
-
+                    <? $totalSum = isset($totalSums[$student->id]) ? $totalSums[$student->id] : 0 ?>
+                    <td data-sort-value="<?= $totalSum?>">
+                        <?= $controller->formatAsPercent($totalSum) ?>%
                     </td>
 
                     <? foreach ($categories as $category) { ?>
                         <? foreach ($groupedDefinitions[$category] as $definition) { ?>
                             <? $instance = $controller->getInstanceForUser($definition, $student) ?>
-                            <td>
-                                <? if ($instance) { ?>
-                                    <?= $controller->formatAsPercent($instance->rawgrade) ?>%
-                                <? } else { ?>
-                                    0%
-                                <? } ?>
+                            <? $rawgrade = $instance ? $instance->rawgrade : 0 ?>
+                            <td data-sort-value="<? $rawgrade ?>">
+                                <?= $controller->formatAsPercent($rawgrade) ?>%
                             </td>
                         <? } ?>
                     <? } ?>

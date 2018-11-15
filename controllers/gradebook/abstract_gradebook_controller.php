@@ -1,5 +1,8 @@
 <?php
 
+use Studip\Grading\Definition;
+use Studip\Grading\Instance;
+
 abstract class AbstractGradebookController extends StudipController
 {
     public function __construct($dispatcher)
@@ -16,9 +19,44 @@ abstract class AbstractGradebookController extends StudipController
     {
         parent::before_filter($action, $args);
         $this->flash = Trails_Flash::instance();
-        $this->set_layout($GLOBALS['template_factory']->open('layouts/base'));
+        $this->set_layout(
+            $GLOBALS['template_factory']->open(\Request::isXhr() ? 'layouts/dialog' : 'layouts/base')
+        );
         $this->setDefaultPageTitle();
-        \PageLayout::addStylesheet($this->plugin->getPluginURL() . '/gradebook.css');
+        \PageLayout::addStylesheet($this->plugin->getPluginURL().'/gradebook.css');
+    }
+
+    public function formatAsPercent($value)
+    {
+        return (float) (round($value * 1000) / 10);
+    }
+
+    public function getNormalizedWeight(Definition $definition)
+    {
+        return $this->sumOfWeights ? $definition->weight / $this->sumOfWeights : 0;
+    }
+
+    protected function getSumOfWeights($gradingDefinitions)
+    {
+        $sumOfWeights = 0;
+        foreach ($gradingDefinitions as $def) {
+            $sumOfWeights += $def->weight;
+        }
+
+        return $sumOfWeights;
+    }
+
+    protected function getGroupedDefinitions($gradingDefinitions)
+    {
+        $groupedDefinitions = [];
+        foreach ($gradingDefinitions as $def) {
+            if (!isset($groupedDefinitions[$def->category])) {
+                $groupedDefinitions[$def->category] = [];
+            }
+            $groupedDefinitions[$def->category][] = $def;
+        }
+
+        return $groupedDefinitions;
     }
 
     /**
@@ -53,5 +91,10 @@ abstract class AbstractGradebookController extends StudipController
     protected function setDefaultPageTitle()
     {
         \PageLayout::setTitle(Context::getHeaderLine().' - Gradebook');
+    }
+
+    protected function getCategories(\Course $course)
+    {
+        return Definition::getCategoriesByCourse($course);
     }
 }

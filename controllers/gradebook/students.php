@@ -50,7 +50,7 @@ class Gradebook_StudentsController extends AbstractGradebookController
     {
         $this->response->add_header(
             'Cache-Control',
-            $_SERVER['HTTPS'] === 'on' ? 'private' : 'no-cache, no-store, must-revalidate'
+            'on' === $_SERVER['HTTPS'] ? 'private' : 'no-cache, no-store, must-revalidate'
         );
 
         $filename = preg_replace(

@@ -38,7 +38,7 @@ class Definition extends \SimpleORMap
         $categories = $stmt->fetchAll(\PDO::FETCH_COLUMN);
 
         $customIndex = array_search(self::CUSTOM_DEFINITIONS_CATEGORY, $categories);
-        if ($customIndex !== false) {
+        if (false !== $customIndex) {
             unset($categories[$customIndex]);
             array_unshift($categories, self::CUSTOM_DEFINITIONS_CATEGORY);
         }

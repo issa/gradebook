@@ -42,32 +42,39 @@ if (isset($flash['success'])) {
         </thead>
 
         <tbody>
+            <? if (count($students)) { ?>
+                <? foreach ($students as $student) { ?>
+                    <tr>
+                        <td class="gradebook-student-name" data-sort-value="<?= $studentName = htmlReady($student->getFullName('no_title_rev')) ?>">
+                            <a href="<?= URLHelper::getURL('dispatch.php/profile', ['username' => $student->username]) ?>">
+                                <?= $studentName ?>
+                            </a>
+                        </td>
+                        <? $totalSum = isset($totalSums[$student->id]) ? $totalSums[$student->id] : 0 ?>
+                        <td data-sort-value="<?= $totalSum?>">
+                            <?= $controller->formatAsPercent($totalSum) ?>%
+                        </td>
 
-            <? foreach ($students as $student) { ?>
-                <tr>
-                    <td class="gradebook-student-name" data-sort-value="<?= $studentName = htmlReady($student->getFullName('no_title_rev')) ?>">
-                        <a href="<?= URLHelper::getURL('dispatch.php/profile', ['username' => $student->username]) ?>">
-                            <?= $studentName ?>
-                        </a>
-                    </td>
-                    <? $totalSum = isset($totalSums[$student->id]) ? $totalSums[$student->id] : 0 ?>
-                    <td data-sort-value="<?= $totalSum?>">
-                        <?= $controller->formatAsPercent($totalSum) ?>%
-                    </td>
-
-                    <? foreach ($categories as $category) { ?>
-                        <? foreach ($groupedDefinitions[$category] as $definition) { ?>
-                            <? $instance = $controller->getInstanceForUser($definition, $student) ?>
-                            <? $rawgrade = $instance ? $instance->rawgrade : 0 ?>
-                            <td data-sort-value="<? $rawgrade ?>">
-                                <?= $controller->formatAsPercent($rawgrade) ?>%
-                            </td>
+                        <? foreach ($categories as $category) { ?>
+                            <? foreach ($groupedDefinitions[$category] as $definition) { ?>
+                                <? $instance = $controller->getInstanceForUser($definition, $student) ?>
+                                <? $rawgrade = $instance ? $instance->rawgrade : 0 ?>
+                                <td data-sort-value="<? $rawgrade ?>">
+                                    <?= $controller->formatAsPercent($rawgrade) ?>%
+                                </td>
+                            <? } ?>
                         <? } ?>
-                    <? } ?>
-                </tr>
+                    </tr>
+                <? } ?>
             <? } ?>
-
         </tbody>
-
     </table>
 </div>
+
+<? if (!count($categories)) { ?>
+    <?= \MessageBox::info(_('Es wurden noch keine Leistungen definiert.')) ?>
+<? } ?>
+
+<? if (!count($students)) { ?>
+    <?= \MessageBox::info(_('Es gibt noch keine Teilnehmer.')) ?>
+<? } ?>

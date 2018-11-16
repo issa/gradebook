@@ -3,10 +3,7 @@
 /**
  * Gradebook Stud.IP plugin.
  */
-class GradebookPlugin extends StudIPPlugin implements
-    /* Plugin Interfaces */
-    SystemPlugin,
-    StandardPlugin
+class GradebookPlugin extends StudIPPlugin implements SystemPlugin, StandardPlugin
 {
     public function __construct()
     {
@@ -40,8 +37,6 @@ class GradebookPlugin extends StudIPPlugin implements
         }
     }
 
-    /* Interface Methods */
-
     /**
      * Return a template (an instance of the Flexi_Template class)
      * to be rendered on the course summary page. Return NULL to
@@ -56,6 +51,8 @@ class GradebookPlugin extends StudIPPlugin implements
      *  admin_title  title for admin link (default: Administration)
      *
      * @return object template object to render or NULL
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getInfoTemplate($courseId)
     {
@@ -77,6 +74,8 @@ class GradebookPlugin extends StudIPPlugin implements
      * @param string $user_id    the user to get the navigation for
      *
      * @return object navigation item to render or NULL
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getIconNavigation($courseId, $lastVisit, $userId)
     {
@@ -96,6 +95,8 @@ class GradebookPlugin extends StudIPPlugin implements
      * @param string $cid course or institute range id
      *
      * @return array navigation item to render or NULL
+     *
+     * @SuppressWarnings(PHPMD.Superglobals)
      */
     public function getTabNavigation($cid)
     {
@@ -115,20 +116,20 @@ class GradebookPlugin extends StudIPPlugin implements
 
     private function addTabNavigationOfLecturers(\Navigation $navigation, $cid)
     {
-            $exportURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/export', true);
-            $navigation->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
+        $exportURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/export', true);
+        $navigation->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
 
-            $weightsURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/weights', true);
-            $navigation->addSubNavigation('weights', new Navigation(_('Gewichtungen'), $weightsURL));
+        $weightsURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/weights', true);
+        $navigation->addSubNavigation('weights', new Navigation(_('Gewichtungen'), $weightsURL));
 
-            $customURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/custom_definitions', true);
-            $navigation->addSubNavigation('custom_definitions', new Navigation(_('Noten manuell erfassen'), $customURL));
+        $customURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/lecturers/custom_definitions', true);
+        $navigation->addSubNavigation('custom_definitions', new Navigation(_('Noten manuell erfassen'), $customURL));
     }
 
     private function addTabNavigationOfStudents(\Navigation $navigation, $cid)
     {
-            $exportURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/students/export', true);
-            $navigation->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
+        $exportURL = \PluginEngine::getURL($this, compact('cid'), 'gradebook/students/export', true);
+        $navigation->addSubNavigation('export', new Navigation(_('Export'), $exportURL));
     }
 
     /**

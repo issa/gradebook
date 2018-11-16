@@ -1,20 +1,20 @@
 .progress {
-  display: flex;
-  height: 20px;
-  overflow: hidden;
-  font-size: 15px;
-  background-color: var(--light-gray-color-20);
-  margin: 0.5em 0;
+    display: flex;
+    height: 20px;
+    overflow: hidden;
+    font-size: 15px;
+    background-color: var(--light-gray-color-20);
+    margin: 0.5em 0;
 }
 
 .progress-bar {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: white;
-  text-align: center;
-  white-space: nowrap;
-  background-color: var(--base-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    white-space: nowrap;
+    background-color: var(--base-color);
 }
 
 .gradebook-lecturer-overview-definition {
@@ -36,18 +36,22 @@ form.gradebook-lecturer-weights fieldset {
     display: flex;
     flex-wrap: wrap;
 }
+
 form.gradebook-lecturer-weights label {
     white-space: nowrap;
     padding-right: 2px;
     flex: 1 0 auto;
 
 }
+
 form.gradebook-lecturer-weights input[type="number"] {
     max-width: 6em;
 }
+
 .gradebook-student-name {
     white-space: nowrap;
 }
+
 .gradebook-definition-name {
     font-weight: bold;
 }
@@ -57,6 +61,7 @@ article.gradebook-student h2
 {
     border-bottom: none;
 }
+
 article.gradebook-student > header {
     margin-bottom: 2.5em;
 }
@@ -87,6 +92,25 @@ section.gradebook-student-category header .progress {
     text-align: right;
 }
 
+table.default .gradebook-grade-input,
+table.default .gradebook-inline-actions {
+    padding-left: 1em;
+}
+
+.gradebook-inline-actions,
+.gradebook-grade-input label {
+    white-space: nowrap;
+}
+
+.gradebook-grade-input label {
+    margin-left: 1em;
+    margin-right: 1em;
+    display: block;
+}
+
+.gradebook-grade-input input {
+    min-width: 5em;
+}
 
 .gradebook-inline-actions .action-menu-icon {
     vertical-align: text-bottom;
@@ -98,4 +122,12 @@ th.gradebook-inline-actions .action-menu-item {
 
 .gradebook-lecturer-custom-definitions input[type="number"] {
     max-width: 3em;
+}
+
+table.gradebook-lecturer-custom-definitions {
+    margin: 0;
+}
+
+form.default footer.gradebook-lecturer-custom-definitions-actions {
+    border-top: none;
 }

@@ -3,5 +3,5 @@ pluginclassname=GradebookPlugin
 origin=luniki
 version=1.0.0
 studipMinVersion=4.0.0
-studipMaxVersion=4.3.999
+studipMaxVersion=4.3.99
 dbscheme=sql/install.sql

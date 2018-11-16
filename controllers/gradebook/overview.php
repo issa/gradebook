@@ -55,7 +55,7 @@ class Gradebook_OverviewController extends AbstractGradebookController
                         'feedback' => 'lorem ipsum',
                     ]
                 );
-                $instancesCount++;
+                ++$instancesCount;
             }
         }
 

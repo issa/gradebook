@@ -1,22 +1,28 @@
-<form class="default gradebook-lecturer-weights" action="<?= $controller->url_for('gradebook/lecturers/store_weights') ?>" method="POST">
+<? if (!count($categories)) { ?>
+    <?= \MessageBox::info(_('Es wurden noch keine Leistungen definiert.')) ?>
+<? } else { ?>
 
-    <? foreach ($categories as $category) { ?>
-        <fieldset>
+    <form class="default gradebook-lecturer-weights" action="<?= $controller->url_for('gradebook/lecturers/store_weights') ?>" method="POST">
 
-            <legend><?= htmlReady($category) ?></legend>
+        <? foreach ($categories as $category) { ?>
+            <fieldset>
 
-            <? foreach ($groupedDefinitions[$category] as $definition) { ?>
-                <label>
-                    <?= htmlReady($definition->name) ?>
-                    <input type="number" name="definitions[<?= $definition->id ?>]" value="<?= htmlReady($definition->weight) ?>" min="0" max="1000000">
-                </label>
-            <? } ?>
+                <legend><?= htmlReady($category) ?></legend>
 
-        </fieldset>
-    <? } ?>
+                <? foreach ($groupedDefinitions[$category] as $definition) { ?>
+                    <label>
+                        <?= htmlReady($definition->name) ?>
+                        <input type="number" name="definitions[<?= $definition->id ?>]" value="<?= htmlReady($definition->weight) ?>" min="0" max="1000000">
+                    </label>
+                <? } ?>
 
-    <footer>
-        <?= \Studip\Button::createAccept(_('Speichern')) ?>
-        <?= \Studip\LinkButton::createCancel(_('Abbrechen'), $controller->url_for('gradebook/lecturers')) ?>
-    </footer>
-</form>
+            </fieldset>
+        <? } ?>
+
+        <footer>
+            <?= \Studip\Button::createAccept(_('Speichern')) ?>
+            <?= \Studip\LinkButton::createCancel(_('Abbrechen'), $controller->url_for('gradebook/lecturers')) ?>
+        </footer>
+    </form>
+
+<? } ?>

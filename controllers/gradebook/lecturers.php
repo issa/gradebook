@@ -49,7 +49,7 @@ class Gradebook_LecturersController extends AbstractGradebookController
     {
         $this->response->add_header(
             'Cache-Control',
-            $_SERVER['HTTPS'] === 'on' ? 'private' : 'no-cache, no-store, must-revalidate'
+            'on' === $_SERVER['HTTPS'] ? 'private' : 'no-cache, no-store, must-revalidate'
         );
 
         $filename = preg_replace(
@@ -165,8 +165,38 @@ class Gradebook_LecturersController extends AbstractGradebookController
     /**
      * @SuppressWarnings(PHPMD.CamelCaseMethodName)
      */
+    public function store_grades_action()
+    {
+        $course = \Context::get();
+        $studentIds = $course->getMembersWithStatus('autor', true)->pluck('user_id');
+        $definitionIds = Definition::findByCourse($course)->pluck('id');
+
+        $grades = \Request::getArray('grades');
+        foreach ($grades as $studentId => $studentGrades) {
+            if (!in_array($studentId, $studentIds)) {
+                continue;
+            }
+            foreach ($studentGrades as $definitionId => $strGrade) {
+                if (!in_array($definitionId, $definitionIds)) {
+                    continue;
+                }
+
+                $instance = new Instance([$definitionId, $studentId]);
+                $instance->rawgrade = ((int) $strGrade) / 100.0;
+                $instance->store();
+            }
+        }
+
+        $this->flash['success'] = _('Die Noten wurden gespeichert.');
+        $this->redirect('gradebook/lecturers/custom_definitions');
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.CamelCaseMethodName)
+     */
     public function new_custom_definition_action()
     {
+        // show template
     }
 
     /**
@@ -207,6 +237,8 @@ class Gradebook_LecturersController extends AbstractGradebookController
         if (!$this->definition = Definition::findOneBySQL('id = ? AND course_id = ?', [$definitionId, \Context::getId()])) {
             throw new \Trails_Exception(404);
         }
+
+        // show template
     }
 
     /**
